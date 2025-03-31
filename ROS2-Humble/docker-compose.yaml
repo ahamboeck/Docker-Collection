@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  ros2:
+    build:
+      context: .
+      args:
+        - WORKSPACE=${WORKSPACE:-dev_ws}
+        - EXPERIMENTAL_ZENOH_RMW=TRUE
+    image: ${IMAGE_NAME:-ros2-humble-dev}:${IMAGE_TAG:-latest}
+    container_name: ros2-humble
+    privileged: true
+    network_mode: host
+    runtime: nvidia
+    # Add these lines for terminal support
+    stdin_open: true
+    tty: true
+    environment:
+      - DISPLAY=${DISPLAY}
+      - PYTHONBUFFERED=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - QT_X11_NO_MITSHM=1
+      # Add TERM environment variable
+      - TERM=xterm-256color
+    volumes:
+      - ${HOME}/${WORKSPACE:-dev_ws}:/root/${WORKSPACE:-dev_ws}:rw
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+      - ./.session.yml:/root/.session.yml
+      - ./.tmux.conf:/root/.tmux.conf
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    command: ["tmuxinator", "start", "-p", "/root/.session.yml"]
