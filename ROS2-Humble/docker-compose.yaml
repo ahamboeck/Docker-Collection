@@ -32,3 +32,28 @@ services:
     devices:
       - /dev/bus/usb:/dev/bus/usb
     command: ["tmuxinator", "start", "-p", "/root/.session.yml"]
+  local:
+    image: ahamboeck1/ros2-humble
+    container_name: ros2-humble-local
+    privileged: true
+    network_mode: host
+    runtime: nvidia
+    stdin_open: true
+    tty: true
+    environment:
+      - DISPLAY=${DISPLAY}
+      - PYTHONBUFFERED=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - QT_X11_NO_MITSHM=1
+      - TERM=xterm-256color
+    volumes:
+      - ${HOME}/${WORKSPACE:-dev_ws}:/root/${WORKSPACE:-dev_ws}:rw
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+      - ./.session.yml:/root/.session.yml
+      - ./.tmux.conf:/root/.tmux.conf
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    command: ["tmuxinator", "start", "-p", "/root/.session.yml"]
