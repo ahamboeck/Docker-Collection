@@ -88,4 +88,20 @@ RUN echo "bashcompinit" >> /root/.zshrc
 RUN echo 'eval "$(register-python-argcomplete3 ros2)"' >> /root/.zshrc
 RUN echo 'eval "$(register-python-argcomplete3 colcon)"' >> /root/.zshrc
 
+# Create non-root user
+RUN useradd -m -s /bin/zsh docker && \
+    echo "docker ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Set up ROS2 environment for docker user
+RUN echo "source /opt/ros/humble/setup.zsh" >> /home/docker/.zshrc && \
+    echo "source /usr/share/gazebo/setup.sh" >> /home/docker/.zshrc
+
+# Change ownership
+RUN chown -R docker:docker /opt/ros && \
+    chown -R docker:docker /home/docker
+
+# Switch to non-root user
+USER docker
+WORKDIR /home/docker
+
 CMD [ "tmuxinator", "start", "-p", "/root/.session.yml" ]

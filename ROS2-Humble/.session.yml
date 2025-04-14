@@ -10,11 +10,11 @@ root: <%= @args[0] %>
 
 startup_window: talker
 windows:
-  - talker:
+  - dev:
       layout: even-vertical
-      panes:
-        - ros2 run demo_nodes_cpp talker
-  - listener:
-      layout: even-vertical
-      panes:
-        - ros2 run demo_nodes_cpp listener
+      # panes:
+        # - ros2 run demo_nodes_cpp talker
+  # - main:
+  #     layout: even-vertical
+      # panes:
+        # - ros2 run demo_nodes_cpp listener
