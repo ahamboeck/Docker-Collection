@@ -7,7 +7,7 @@ services:
         - WORKSPACE=${WORKSPACE:-dev_ws}
         - EXPERIMENTAL_ZENOH_RMW=TRUE
     image: ${IMAGE_NAME:-ros2-humble-dev}:${IMAGE_TAG:-latest}
-    container_name: ros2-humble
+    # container_name: ros2-humble
     privileged: true
     network_mode: host
     runtime: nvidia
@@ -22,40 +22,17 @@ services:
       # Add TERM environment variable
       - TERM=xterm-256color
     volumes:
-      - ${HOME}/${WORKSPACE:-dev_ws}:/home/docker/${WORKSPACE:-dev_ws}:rw
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ${HOME}/.Xauthority:/home/docker/.Xauthority:ro
-      # Fix the session.yml path to match the docker user's home
-      - ./.session.yml:/home/docker/.session.yml
-      - ./.tmux.conf:/home/docker/.tmux.conf
-    devices:
-      - /dev/bus/usb:/dev/bus/usb
-    # Fix the command to use the correct path
-    command: ["tmuxinator", "start", "-p", "/home/docker/.session.yml"]
-  ros2-dockerhub:
-    image: ahamboeck1/spotros2
-    container_name: ros2-humble-local
-    privileged: true
-    network_mode: host
-    runtime: nvidia
-    stdin_open: true
-    tty: true
-    environment:
-      - DISPLAY=${DISPLAY}
-      - PYTHONBUFFERED=1
-      - NVIDIA_VISIBLE_DEVICES=all
-      - QT_X11_NO_MITSHM=1
-      - TERM=xterm-256color
-    volumes:
       - ${HOME}/${WORKSPACE:-dev_ws}:/root/${WORKSPACE:-dev_ws}:rw
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${HOME}/.Xauthority:/root/.Xauthority:ro
+      # Update paths to use /root instead of /home/docker
       - ./.session.yml:/root/.session.yml
       - ./.tmux.conf:/root/.tmux.conf
+      - ./.zshrc:/root/.zshrc
+      - ./.p10k.zsh:/root/.p10k.zsh
     devices:
       - /dev/bus/usb:/dev/bus/usb
+    # Fix the command to use the correct path
     command: ["tmuxinator", "start", "-p", "/root/.session.yml"]

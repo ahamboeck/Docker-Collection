@@ -1,7 +1,6 @@
 FROM osrf/ros:humble-desktop-full
 
 ARG WORKSPACE=humble_dev_ws
-ARG EXPERIMENTAL_ZENOH_RMW=TRUE
 
 WORKDIR /root/$WORKSPACE
 
@@ -31,7 +30,6 @@ RUN apt-get update && apt-get install -y \
     ros-humble-robot-state-publisher \
     ros-humble-ros2bag \
     ros-humble-rosbag2-storage-default-plugins \
-    $(if [ "$EXPERIMENTAL_ZENOH_RMW" = "TRUE" ]; then echo "ros-humble-rmw-zenoh-cpp"; fi) \
     ros-humble-rqt-tf-tree \
     ros-humble-rmw-fastrtps-cpp \
     ros-humble-rmw-cyclonedds-cpp \
@@ -70,6 +68,8 @@ RUN apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
+RUN git config --global --add safe.directory '*'
+
 RUN echo "export DISABLE_AUTO_TITLE=true" >> /root/.zshrc
 RUN echo 'LC_NUMERIC="en_US.UTF-8"' >> /root/.zshrc
 RUN echo "source /opt/ros/humble/setup.zsh" >> /root/.zshrc
@@ -88,20 +88,7 @@ RUN echo "bashcompinit" >> /root/.zshrc
 RUN echo 'eval "$(register-python-argcomplete3 ros2)"' >> /root/.zshrc
 RUN echo 'eval "$(register-python-argcomplete3 colcon)"' >> /root/.zshrc
 
-# Create non-root user
-RUN useradd -m -s /bin/zsh docker && \
-    echo "docker ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-# Set up ROS2 environment for docker user
-RUN echo "source /opt/ros/humble/setup.zsh" >> /home/docker/.zshrc && \
-    echo "source /usr/share/gazebo/setup.sh" >> /home/docker/.zshrc
-
-# Change ownership
-RUN chown -R docker:docker /opt/ros && \
-    chown -R docker:docker /home/docker
-
-# Switch to non-root user
-USER docker
-WORKDIR /home/docker
+# Keep root as the user and stay in /root
+WORKDIR /root
 
 CMD [ "tmuxinator", "start", "-p", "/root/.session.yml" ]
