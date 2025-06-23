@@ -18,15 +18,16 @@ plugins=(git zsh-autosuggestions zsh-completions )
 
 
 source $ZSH/oh-my-zsh.sh
-POWERLEVEL9K_SHORTEN_STRATEGY="truncate_to_last"
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(user dir vcs status)
-POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=()
-POWERLEVEL9K_STATUS_OK=false
-POWERLEVEL9K_STATUS_CROSS=true
+# POWERLEVEL9K_SHORTEN_STRATEGY="truncate_to_last"
+# POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(user dir vcs status)
+# POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=()
+# POWERLEVEL9K_STATUS_OK=false
+# POWERLEVEL9K_STATUS_CROSS=true
 export DISABLE_AUTO_TITLE=true
 LC_NUMERIC="en_US.UTF-8"
 source /opt/ros/humble/setup.zsh
 source /usr/share/gazebo/setup.sh
+source $HOME/local_git/dev/AS_RoboBrain/install/setup.zsh
 alias rosdi="rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y"
 alias cbuild="colcon build --symlink-install"
 alias ssetup="source ./install/local_setup.zsh"
