@@ -23,6 +23,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${HOME}/.Xauthority:/root/.Xauthority:ro
+      - ./utilities:/utilities:rw
     devices:
       - /dev/bus/usb:/dev/bus/usb
     # Fix the command to use the correct path

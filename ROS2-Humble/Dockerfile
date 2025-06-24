@@ -44,7 +44,10 @@ RUN apt-get update && apt-get install -y \
     ros-humble-plotjuggler-ros \
     ros-humble-robot-state-publisher \
     ros-humble-ros2bag \
+    ros-humble-rmw-cyclonedds-cpp \
     ros-humble-rosbag2-storage-default-plugins \
+    ros-humble-navigation2 \
+    ros-humble-nav2-bringup \
     ros-humble-rqt-tf-tree \
     ros-humble-slam-toolbox \
     ros-humble-twist-mux \
@@ -78,6 +81,10 @@ RUN apt-get autoremove -y \
 
 RUN git config --global --add safe.directory '*'
 
+COPY ./config/cyclonedds.xml /root/cyclonedds.xml
+RUN echo 'export CYCLONEDDS_URI=file:///root/cyclonedds.xml' >> /root/.bashrc
+RUN echo 'RMW_IMPLEMENTATION=rmw_cyclonedds_cpp' >> /root/.bashrc
+
 # Setup ROS environment
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
 RUN echo "source /usr/share/gazebo/setup.sh" >> /root/.bashrc
@@ -86,7 +93,6 @@ RUN echo "source /usr/share/gazebo/setup.sh" >> /root/.bashrc
 RUN echo 'alias rosdi="rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y"' >> /root/.bashrc
 RUN echo 'alias cbuild="colcon build --symlink-install"' >> /root/.bashrc
 RUN echo 'alias zenoh="export RMW_IMPLEMENTATION=rmw_zenoh_cpp"' >> /root/.bashrc
-RUN echo 'export RMW_IMPLEMENTATION=rmw_fastrtps_cpp' >> /root/.bashrc
 
 # Enable argument completion
 RUN echo 'eval "$(register-python-argcomplete3 ros2)"' >> /root/.bashrc
