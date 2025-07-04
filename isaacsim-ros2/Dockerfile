@@ -63,6 +63,9 @@ RUN apt-get update && apt-get install -y \
     ros-humble-rviz2 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Initialize rosdep
+RUN rosdep init && rosdep update
+
 # --- Build rmw_zenoh from source ---
 # Create workspace and clone rmw_zenoh
 RUN mkdir -p /root/ws_rmw_zenoh/src && \
@@ -70,7 +73,6 @@ RUN mkdir -p /root/ws_rmw_zenoh/src && \
 
 # Install dependencies
 RUN . /opt/ros/humble/setup.sh && \
-    rosdep update && \
     rosdep install --from-paths /root/ws_rmw_zenoh/src --ignore-src --rosdistro humble -y
 
 # Build rmw_zenoh
