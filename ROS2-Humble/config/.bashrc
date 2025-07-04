@@ -104,5 +104,4 @@ alias cbuild="colcon build --symlink-install"
 alias zenoh="export RMW_IMPLEMENTATION=rmw_zenoh_cpp"
 eval "$(register-python-argcomplete3 ros2)"
 eval "$(register-python-argcomplete3 colcon)"
-export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-export CYCLONEDDS_URI=file:///root/cyclonedds.xml
+export RMW_IMPLEMENTATION=rmw_zenoh_cpp

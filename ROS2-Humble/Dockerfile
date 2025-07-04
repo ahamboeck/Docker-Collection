@@ -81,9 +81,7 @@ RUN apt-get autoremove -y \
 
 RUN git config --global --add safe.directory '*'
 
-COPY ./config/cyclonedds.xml /root/cyclonedds.xml
-RUN echo 'export CYCLONEDDS_URI=file:///root/cyclonedds.xml' >> /root/.bashrc
-RUN echo 'RMW_IMPLEMENTATION=rmw_cyclonedds_cpp' >> /root/.bashrc
+RUN echo 'export RMW_IMPLEMENTATION=rmw_zenoh_cpp' >> /root/.bashrc
 
 # Setup ROS environment
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
