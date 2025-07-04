@@ -38,7 +38,28 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libfontconfig1-dev \
     libxft-dev \
-    ros-humble-desktop \
+    ros-humble-desktop-full \
+    ros-humble-gazebo-ros \
+    ros-humble-gazebo-ros-pkgs \
+    ros-humble-joint-state-publisher \
+    ros-humble-robot-localization \
+    ros-humble-plotjuggler-ros \
+    ros-humble-robot-state-publisher \
+    ros-humble-ros2bag \
+    ros-humble-rmw-cyclonedds-cpp \
+    ros-humble-rmw-zenoh-cpp \
+    ros-humble-rosbag2-storage-default-plugins \
+    ros-humble-navigation2 \
+    ros-humble-nav2-bringup \
+    ros-humble-rqt-tf-tree \
+    ros-humble-slam-toolbox \
+    ros-humble-twist-mux \
+    ros-humble-usb-cam \
+    ros-humble-xacro \
+    ros-humble-ament-clang-format \
+    ros-humble-ament-clang-tidy \
+    ros-humble-demo-nodes-cpp \
+    ros-humble-demo-nodes-py \
     ros-dev-tools \
     ros-humble-rviz2 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -52,12 +73,27 @@ ENV ROS_DISTRO=humble
 ENV ROS_VERSION=2
 ENV ROS_PYTHON_VERSION=3
 
+# Add build argument for RMW implementation (default: rmw_cyclonedds_cpp)
+ARG RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
+
 # Volumes
 VOLUME ["/isaac-sim/kit/cache", "/root/.cache/ov", "/root/.cache/pip", "/root/.cache/nvidia/GLCache", "/root/.nv/ComputeCache", "/root/.nvidia-omniverse/logs", "/root/.local/share/ov/data", "/root/Documents"]
 
-# Source ROS2 in bash shell
-SHELL ["/bin/bash", "-c"]
-RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+# Copy Cyclone DDS XML config (must be present in build context)
+COPY cyclonedds.xml /root/cyclonedds.xml
+
+# Copy Zenoh config files (must be present in build context)
+COPY MY_ZENOH_ROUTER_CONFIG.json5 /root/MY_ZENOH_ROUTER_CONFIG.json5
+COPY MY_ZENOH_SESSION_CONFIG.json5 /root/MY_ZENOH_SESSION_CONFIG.json5
+
+# Set Cyclone DDS or Zenoh config file if selected
+RUN echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_cyclonedds_cpp" ]; then export CYCLONEDDS_URI=file:///root/cyclonedds.xml; fi' >> ~/.bashrc && \
+    echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_zenoh_cpp" ]; then export ZENOH_ROUTER_CONFIG_URI=/root/MY_ZENOH_ROUTER_CONFIG.json5; export ZENOH_SESSION_CONFIG=/root/MY_ZENOH_SESSION_CONFIG.json5; fi' >> ~/.bashrc
+
+# Source ROS2 in bash shell and set RMW in .bashrc
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
+    echo "export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}" >> ~/.bashrc
 
 # Default CMD to launch Isaac Sim with GUI
 CMD ["./runapp.sh", "-v"]

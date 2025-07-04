@@ -1,6 +1,8 @@
 FROM ubuntu:22.04
 
 ARG WORKSPACE=dev_ws
+# Add build argument for RMW implementation (default: rmw_cyclonedds_cpp)
+ARG RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 WORKDIR /root/$WORKSPACE
 
@@ -11,6 +13,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPA
 ENV QT_X11_NO_MITSHM=1
 ENV EDITOR=nano
 ENV XDG_RUNTIME_DIR=/tmp
+ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
 
 # Install basic dependencies
 RUN apt-get update && apt-get install -y \
@@ -45,6 +48,7 @@ RUN apt-get update && apt-get install -y \
     ros-humble-robot-state-publisher \
     ros-humble-ros2bag \
     ros-humble-rmw-cyclonedds-cpp \
+    ros-humble-rmw-zenoh-cpp \
     ros-humble-rosbag2-storage-default-plugins \
     ros-humble-navigation2 \
     ros-humble-nav2-bringup \
@@ -81,20 +85,24 @@ RUN apt-get autoremove -y \
 
 RUN git config --global --add safe.directory '*'
 
-RUN echo 'export RMW_IMPLEMENTATION=rmw_zenoh_cpp' >> /root/.bashrc
+# Copy Cyclone DDS XML config (must be present in build context)
+COPY cyclonedds.xml /root/cyclonedds.xml
 
-# Setup ROS environment
-RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
-RUN echo "source /usr/share/gazebo/setup.sh" >> /root/.bashrc
+# Copy Zenoh config files (must be present in build context)
+COPY MY_ZENOH_ROUTER_CONFIG.json5 /root/MY_ZENOH_ROUTER_CONFIG.json5
+COPY MY_ZENOH_SESSION_CONFIG.json5 /root/MY_ZENOH_SESSION_CONFIG.json5
 
-# Add useful aliases
-RUN echo 'alias rosdi="rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y"' >> /root/.bashrc
-RUN echo 'alias cbuild="colcon build --symlink-install"' >> /root/.bashrc
-RUN echo 'alias zenoh="export RMW_IMPLEMENTATION=rmw_zenoh_cpp"' >> /root/.bashrc
-
-# Enable argument completion
-RUN echo 'eval "$(register-python-argcomplete3 ros2)"' >> /root/.bashrc
-RUN echo 'eval "$(register-python-argcomplete3 colcon)"' >> /root/.bashrc
+# Setup ROS environment and RMW implementation in .bashrc
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
+    echo "source /usr/share/gazebo/setup.sh" >> /root/.bashrc && \
+    echo 'export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}' >> /root/.bashrc && \
+    echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_cyclonedds_cpp" ]; then export CYCLONEDDS_URI=file:///root/cyclonedds.xml; fi' >> /root/.bashrc && \
+    echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_zenoh_cpp" ]; then export ZENOH_ROUTER_CONFIG_URI=/root/MY_ZENOH_ROUTER_CONFIG.json5; export ZENOH_SESSION_CONFIG=/root/MY_ZENOH_SESSION_CONFIG.json5; fi' >> /root/.bashrc && \
+    echo 'alias rosdi="rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y"' >> /root/.bashrc && \
+    echo 'alias cbuild="colcon build --symlink-install"' >> /root/.bashrc && \
+    echo 'alias zenoh="export RMW_IMPLEMENTATION=rmw_zenoh_cpp"' >> /root/.bashrc && \
+    echo 'eval \"$(register-python-argcomplete3 ros2)\"' >> /root/.bashrc && \
+    echo 'eval \"$(register-python-argcomplete3 colcon)\"' >> /root/.bashrc
 
 WORKDIR /root/${WORKSPACE}/ros2_ws
 
