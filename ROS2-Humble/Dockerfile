@@ -98,8 +98,9 @@ RUN mkdir -p /root/ws_rmw_zenoh/src && \
 
 # Install dependencies
 RUN . /opt/ros/humble/setup.sh && \
+    apt-get update && \
     rosdep update && \
-    rosdep install --from-paths /root/ws_rmw_zenoh/src --ignore-src --rosdistro humble -y
+    rosdep install --from-paths /root/ws_rmw_zenoh/src/ --ignore-src --rosdistro humble -y
 
 # Build rmw_zenoh
 RUN . /opt/ros/humble/setup.sh && \
