@@ -47,7 +47,6 @@ RUN apt-get update && apt-get install -y \
     ros-humble-robot-state-publisher \
     ros-humble-ros2bag \
     ros-humble-rmw-cyclonedds-cpp \
-    ros-humble-rmw-zenoh-cpp \
     ros-humble-rosbag2-storage-default-plugins \
     ros-humble-navigation2 \
     ros-humble-nav2-bringup \
@@ -63,6 +62,24 @@ RUN apt-get update && apt-get install -y \
     ros-dev-tools \
     ros-humble-rviz2 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# --- Build rmw_zenoh from source ---
+# Create workspace and clone rmw_zenoh
+RUN mkdir -p /root/ws_rmw_zenoh/src && \
+    git clone --branch humble https://github.com/ros2/rmw_zenoh.git /root/ws_rmw_zenoh/src/rmw_zenoh
+
+# Install dependencies
+RUN . /opt/ros/humble/setup.sh && \
+    rosdep update && \
+    rosdep install --from-paths /root/ws_rmw_zenoh/src --ignore-src --rosdistro humble -y
+
+# Build rmw_zenoh
+RUN . /opt/ros/humble/setup.sh && \
+    cd /root/ws_rmw_zenoh && \
+    colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+# Source the workspace in .bashrc (after sourcing ROS)
+RUN echo "source /root/ws_rmw_zenoh/install/setup.bash" >> /root/.bashrc
 
 # Environment variables
 ENV ACCEPT_EULA=Y
