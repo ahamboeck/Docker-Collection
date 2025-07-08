@@ -41,6 +41,9 @@
     /// See https://docs.rs/zenoh/latest/zenoh/config/struct.EndPoint.html
     endpoints: [
       // "<proto>/<address>"
+      // This is the work laptop
+      "tcp/192.168.6.66:7447"
+
     ],
 
     /// Global connect configuration,
