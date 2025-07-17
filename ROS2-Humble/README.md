@@ -19,4 +19,4 @@ Note that the above configs are mapped as volumes to docker image.
 
 ### The following repo was used as a guidance to create this repo
 
-[text](https://github.com/sskorol/ros2-humble-docker-dev-template)
+[ros2-humble-docker-dev-template](https://github.com/sskorol/ros2-humble-docker-dev-template)

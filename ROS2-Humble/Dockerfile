@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 ARG WORKSPACE=dev_ws
 # Add build argument for RMW implementation (default: rmw_cyclonedds_cpp)
-ARG RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ARG RMW_IMPLEMENTATION=rmw_zenoh_cpp
 
 WORKDIR /root/$WORKSPACE
 
@@ -60,7 +60,10 @@ RUN apt-get update && apt-get install -y \
     ros-humble-ament-clang-tidy \
     ros-humble-demo-nodes-cpp \
     ros-humble-demo-nodes-py \
+    ros-humble-rviz2 \
+    ros-dev-tools \
     vim \
+    tcpdump \
     iputils-ping \
     iputils-tracepath \
     traceroute \
@@ -107,14 +110,12 @@ RUN . /opt/ros/humble/setup.sh && \
     cd /root/ws_rmw_zenoh && \
     colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 
-# Source the workspace in .bashrc (after sourcing ROS)
-RUN echo "source /root/ws_rmw_zenoh/install/setup.bash" >> /root/.bashrc
-
 # Setup ROS environment and RMW implementation in .bashrc
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
     echo "source /usr/share/gazebo/setup.sh" >> /root/.bashrc && \
+    echo "source /root/ws_rmw_zenoh/install/setup.bash" >> /root/.bashrc && \
     echo 'export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}' >> /root/.bashrc && \
-    echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_cyclonedds_cpp" ]; then export CYCLONEDDS_URI=file:///root/cyclonedds.xml; fi' >> /root/.bashrc && \
+    echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_cyclonedx_cpp" ]; then export CYCLONEDDS_URI=file:///root/cyclonedds.xml; fi' >> /root/.bashrc && \
     echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_zenoh_cpp" ]; then export ZENOH_ROUTER_CONFIG_URI=/root/MY_ZENOH_ROUTER_CONFIG.json5; export ZENOH_SESSION_CONFIG=/root/MY_ZENOH_SESSION_CONFIG.json5; fi' >> /root/.bashrc && \
     echo 'alias rosdi="rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y"' >> /root/.bashrc && \
     echo 'alias cbuild="colcon build --symlink-install"' >> /root/.bashrc && \

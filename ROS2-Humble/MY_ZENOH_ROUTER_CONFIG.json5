@@ -32,7 +32,7 @@
     /// timeout waiting for all endpoints connected (0: no retry, -1: infinite timeout)
     /// Accepts a single value (e.g. timeout_ms: 0)
     /// or different values for router, peer and client (e.g. timeout_ms: { router: -1, peer: -1, client: 0 }).
-    timeout_ms: { router: -1, peer: -1, client: 0 },
+    timeout_ms: { router: -1, peer: -1, client: -1 },
 
     /// The list of endpoints to connect to.
     /// Accepts a single list (e.g. endpoints: ["tcp/10.10.10.10:7447", "tcp/11.11.11.11:7447"])
@@ -41,9 +41,7 @@
     /// See https://docs.rs/zenoh/latest/zenoh/config/struct.EndPoint.html
     endpoints: [
       // "<proto>/<address>"
-      // This is the work laptop
       "tcp/192.168.6.66:7447"
-
     ],
 
     /// Global connect configuration,
@@ -53,14 +51,14 @@
     /// E.g. tcp/192.168.0.1:7447#retry_period_init_ms=20000;retry_period_max_ms=10000"
 
     /// exit from application, if timeout exceed
-    exit_on_failure: { router: false, peer: false, client: true },
+    exit_on_failure: { router: false, peer: false, client: false },
     /// connect establishing retry configuration
     retry: {
       /// initial wait timeout until next connect try
       period_init_ms: 1000,
       /// maximum wait timeout until next connect try
       period_max_ms: 4000,
-      /// increase factor for the next timeout until nexti connect try
+      /// increase factor for the next timeout until next connect try
       period_increase_factor: 2,
     },
   },
@@ -102,7 +100,7 @@
     /// E.g. tcp/192.168.0.1:7447#exit_on_failure=false;retry_period_max_ms=1000"
 
     /// exit from application, if timeout exceed
-    exit_on_failure: true,
+    exit_on_failure: false,
     /// listen retry configuration
     retry: {
       /// initial wait timeout until next try
@@ -218,9 +216,8 @@
 
   /// The default timeout to apply to queries in milliseconds.
   /// ROS setting: increase the value to avoid timeout at launch time with a large number of Nodes starting all together.
-  ///              Note: the requests to services and actions are hard-coded with an infinite timeout. Hence, this setting
-  ///              only applies to the queries made by the Advanced Subscriber for TRANSIENT_LOCAL implementation.
-  queries_default_timeout: 60000,
+  ///              Note that only action-related service get_result is hard-coded with an infinite timeout.
+  queries_default_timeout: 600000,
 
   /// The routing strategy to use and it's configuration.
   routing: {
@@ -591,7 +588,7 @@
         sequence_number_resolution: "32bit",
         /// Link lease duration in milliseconds to announce to other zenoh nodes
         /// ROS setting: increase the value to avoid lease expiration at launch time with a large number of Nodes starting all together
-        lease: 60000,
+        lease: 600000,
         /// Number of keep-alive messages in a link lease duration. If no data is sent, keep alive
         /// messages will be sent at the configured time interval.
         /// NOTE: In order to consider eventual packet loss and transmission latency and jitter,
@@ -603,7 +600,7 @@
         ///       target interval.
         /// ROS setting: decrease the value since Nodes are communicating over the loopback
         ///              where keep-alive messages have less chances to be lost.
-        keep_alive: 2,
+        keep_alive: 120,
         /// Batch size in bytes is expressed as a 16bit unsigned integer.
         /// Therefore, the maximum batch size is 2^16-1 (i.e. 65535).
         /// The default batch size value is the maximum batch size: 65535.
@@ -617,23 +614,23 @@
           /// then amount of memory being allocated for each queue is SIZE_XXX * LINK_MTU.
           /// If qos is false, then only the DATA priority will be allocated.
           size: {
-            control: 2,
-            real_time: 2,
-            interactive_high: 2,
-            interactive_low: 2,
-            data_high: 2,
-            data: 2,
-            data_low: 2,
-            background: 2,
+            control: 16,
+            real_time: 16,
+            interactive_high: 16,
+            interactive_low: 16,
+            data_high: 16,
+            data: 16,
+            data_low: 16,
+            background: 16,
           },
           /// Congestion occurs when the queue is empty (no available batch).
           congestion_control: {
             /// Behavior pushing CongestionControl::Drop messages to the queue.
             drop: {
               /// The maximum time in microseconds to wait for an available batch before dropping a droppable message if still no batch is available.
-              wait_before_drop: 1000,
+              wait_before_drop: 600000000, // 10 minutes
               /// The maximum deadline limit for multi-fragment messages.
-              max_wait_before_drop_fragments: 50000,
+              max_wait_before_drop_fragments: 600000000,
             },
             /// Behavior pushing CongestionControl::Block messages to the queue.
             block: {
@@ -642,7 +639,7 @@
               /// ROS setting: unlike DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5, no change here:
               ///              as the router is routing messages to outside the robot, possibly over WiFi,
               ///              keeping a lower value ensure the router is not blocked for too long in case of congestioned WiFi.
-              wait_before_close: 5000000,
+              wait_before_close: 600000000,
             },
           },
           /// Perform batching of messages if they are smaller of the batch_size
@@ -653,7 +650,7 @@
             /// scenario mainly composed of small messages. In other words, batching is activated by the network back-pressure.
             enabled: true,
             /// The maximum time limit (in ms) a message should be retained for batching when back-pressure happens.
-            time_limit: 1,
+            time_limit: 100,
           },
           allocation: {
             /// Mode for memory allocation of batches in the priority queues. 
@@ -670,7 +667,7 @@
         /// For very high throughput scenarios, the rx_buffer_size can be increased to accommodate
         /// more in-flight data. This is particularly relevant when dealing with large messages.
         /// E.g. for 16MiB rx_buffer_size set the value to: 16777216.
-        buffer_size: 65535,
+        buffer_size: 33554432, // 32 MiB
         /// Maximum size of the defragmentation buffer at receiver end.
         /// Fragmented messages that are larger than the configured size will be dropped.
         /// The default value is 1GiB. This would work in most scenarios.
@@ -771,5 +768,4 @@
       write: false,
     },
   },
-
 }

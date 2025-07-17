@@ -59,6 +59,10 @@ RUN apt-get update && apt-get install -y \
     ros-humble-ament-clang-tidy \
     ros-humble-demo-nodes-cpp \
     ros-humble-demo-nodes-py \
+    tcpdump \
+    vim \
+    git \
+    nano \
     ros-dev-tools \
     ros-humble-rviz2 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -93,8 +97,8 @@ ENV ROS_DISTRO=humble
 ENV ROS_VERSION=2
 ENV ROS_PYTHON_VERSION=3
 
-# Add build argument for RMW implementation (default: rmw_cyclonedds_cpp)
-ARG RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+# Add build argument for RMW implementation (default: rmw_zenoh_cpp)
+ARG RMW_IMPLEMENTATION=rmw_zenoh_cpp
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
 
 # Volumes
