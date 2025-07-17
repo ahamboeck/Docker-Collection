@@ -650,7 +650,7 @@
             enabled: true,
             /// The maximum time limit (in ms) a message should be retained for batching when back-pressure happens.
             time_limit: 100,
-          },1
+          },
           allocation: {
             /// Mode for memory allocation of batches in the priority queues. 
             /// - "init": batches are allocated at queue initialization time. 
