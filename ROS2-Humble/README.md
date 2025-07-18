@@ -1,22 +1,40 @@
-## ROS2 Humble
+## ROS2 Humble with Zenoh Support
+
+This Docker image provides ROS2 Humble with both CycloneDX and Zenoh RMW implementations.
 
 ### Building
 
+Build the Docker image using docker compose (uses `.env` file for configuration):
+
 ```shell
-./run.sh -w dev_ws -i [YOUR_IMAGE_NAME:TAG] -b
+docker compose build
 ```
 
 ### Running
 
-- Update `.tmux.conf` if you need to enable additional `tmux` features
-- Update `.session.yml` to customize Tmuxinator UI
-
-Note that the above configs are mapped as volumes to docker image.
+Start and bash into the container:
 
 ```shell
-./run.sh -w dev_ws -i [YOUR_IMAGE_NAME:TAG] -r
+docker compose up -d
+docker compose exec ros2 bash
 ```
 
-### The following repo was used as a guidance to create this repo
+or
 
-[ros2-humble-docker-dev-template](https://github.com/sskorol/ros2-humble-docker-dev-template)
+```shell
+docker exec -it ros2-humble-dev bash
+```
+
+### Starting a Zenoh Router
+
+Inside the container, start a Zenoh router:
+
+```shell
+ros2 run rmw_zenoh_cpp rmw_zenohd
+```
+
+### Configuration
+
+- Edit `.env` to customize workspace path and image name/tag
+- RMW implementation defaults to `rmw_zenoh_cpp` but can be switched at runtime
+- Zenoh and CycloneDDS configuration files are included in the image

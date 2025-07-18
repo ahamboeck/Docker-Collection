@@ -80,7 +80,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 RUN rosdep init && rosdep update
 
 # It's better to put this before the big install if a specific version is truly needed
-# RUN pip3 install setuptools==58.2.0
 
 RUN apt-get autoremove -y \
     && apt-get clean -y \

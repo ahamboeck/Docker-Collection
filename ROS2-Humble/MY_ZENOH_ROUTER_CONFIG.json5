@@ -41,7 +41,10 @@
     /// See https://docs.rs/zenoh/latest/zenoh/config/struct.EndPoint.html
     endpoints: [
       // "<proto>/<address>"
-      "tcp/192.168.6.66:7447"
+      // My local dev setup
+      // "tcp/192.168.6.66:7447",
+      // Azure VM via OVPN
+      "tcp/10.184.39.10:7447"
     ],
 
     /// Global connect configuration,
