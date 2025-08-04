@@ -98,7 +98,7 @@ ENV ROS_VERSION=2
 ENV ROS_PYTHON_VERSION=3
 
 # Add build argument for RMW implementation (default: rmw_zenoh_cpp)
-ARG RMW_IMPLEMENTATION=rmw_zenoh_cpp
+ARG RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
 
 # Volumes

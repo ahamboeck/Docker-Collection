@@ -7,9 +7,12 @@ docker run --name isaac_sim_ros2 \
     -it --gpus all \
     --rm \
     --network=host \
+    --privileged \
     -e "ACCEPT_EULA=Y" \
     -e "PRIVACY_CONSENT=Y" \
     -e DISPLAY \
+    -v /dev/input/js0:/dev/input/js0 \
+    -v /dev/input/js1:/dev/input/js1 \
     -v $HOME/.Xauthority:/root/.Xauthority \
     -v ~/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw \
     -v ~/docker/isaac-sim/cache/ov:/root/.cache/ov:rw \
@@ -19,5 +22,5 @@ docker run --name isaac_sim_ros2 \
     -v ~/docker/isaac-sim/logs:/root/.nvidia-omniverse/logs:rw \
     -v ~/docker/isaac-sim/data:/root/.local/share/ov/data:rw \
     -v ~/docker/isaac-sim/documents:/root/Documents:rw \
+    -v ~/local_git/dev/:/root/local_git/dev/ \
     isaac_sim_ros2:4.5.0-humble
-
