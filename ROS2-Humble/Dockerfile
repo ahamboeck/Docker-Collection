@@ -114,14 +114,12 @@ RUN . /opt/ros/humble/setup.sh && \
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
     echo "source /usr/share/gazebo/setup.sh" >> /root/.bashrc && \
     echo "source /root/ws_rmw_zenoh/install/setup.bash" >> /root/.bashrc && \
-    echo 'export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}' >> /root/.bashrc && \
     echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_cyclonedds_cpp" ]; then export CYCLONEDDS_URI=file:///root/cyclonedds.xml; fi' >> /root/.bashrc && \
     echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_zenoh_cpp" ]; then export ZENOH_ROUTER_CONFIG_URI=/root/MY_ZENOH_ROUTER_CONFIG.json5; export ZENOH_SESSION_CONFIG=/root/MY_ZENOH_SESSION_CONFIG.json5; fi' >> /root/.bashrc && \
-    echo 'alias rosdi="rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y"' >> /root/.bashrc && \
-    echo 'alias cbuild="colcon build --symlink-install"' >> /root/.bashrc && \
-    echo 'alias zenoh="export RMW_IMPLEMENTATION=rmw_zenoh_cpp"' >> /root/.bashrc && \
     echo 'eval "$(register-python-argcomplete3 ros2)"' >> /root/.bashrc && \
-    echo 'eval "$(register-python-argcomplete3 colcon)"' >> /root/.bashrc
+    echo 'eval "$(register-python-argcomplete3 colcon)"' >> /root/.bashrc && \
+    echo 'export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}' >> /root/.bashrc && \
+    echo 'export RCUTILS_COLORIZED_OUTPUT=1' >> /root/.bashrc && \
 
 WORKDIR /root/${WORKSPACE}/ros2_ws
 

@@ -85,9 +85,6 @@ RUN . /opt/ros/humble/setup.sh && \
     cd /root/ws_rmw_zenoh && \
     colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 
-# Source the workspace in .bashrc (after sourcing ROS)
-RUN echo "source /root/ws_rmw_zenoh/install/setup.bash" >> /root/.bashrc
-
 # Environment variables
 ENV ACCEPT_EULA=Y
 ENV PRIVACY_CONSENT=Y
@@ -115,9 +112,12 @@ COPY MY_ZENOH_SESSION_CONFIG.json5 /root/MY_ZENOH_SESSION_CONFIG.json5
 RUN echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_cyclonedds_cpp" ]; then export CYCLONEDDS_URI=file:///root/cyclonedds.xml; fi' >> ~/.bashrc && \
     echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_zenoh_cpp" ]; then export ZENOH_ROUTER_CONFIG_URI=/root/MY_ZENOH_ROUTER_CONFIG.json5; export ZENOH_SESSION_CONFIG=/root/MY_ZENOH_SESSION_CONFIG.json5; fi' >> ~/.bashrc
 
-# Source ROS2 in bash shell and set RMW in .bashrc
+# Setup ROS environment and RMW implementation in .bashrc 
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
-    echo "export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}" >> ~/.bashrc
+    echo "export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}" >> ~/.bashrc && \
+    echo "source /root/ws_rmw_zenoh/install/setup.bash" >> ~/.bashrc && \
+    echo "export RCUTILS_COLORIZED_OUTPUT=1" >> ~/.bashrc
+
 
 # Default CMD to launch Isaac Sim with GUI
 CMD ["./runapp.sh", "-v"]
