@@ -112,6 +112,7 @@ RUN . /opt/ros/humble/setup.sh && \
 
 # Setup ROS environment and RMW implementation in .bashrc
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
+    echo "alias rosdepinstall='rosdep install --from-paths src --ignore-src --rosdistro humble -y'" >> /root/.bashrc && \
     echo "source /usr/share/gazebo/setup.sh" >> /root/.bashrc && \
     echo "source /root/ws_rmw_zenoh/install/setup.bash" >> /root/.bashrc && \
     echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_cyclonedds_cpp" ]; then export CYCLONEDDS_URI=file:///root/cyclonedds.xml; fi' >> /root/.bashrc && \

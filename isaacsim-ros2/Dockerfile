@@ -116,6 +116,7 @@ RUN echo 'if [ "$RMW_IMPLEMENTATION" = "rmw_cyclonedds_cpp" ]; then export CYCLO
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
     echo "export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}" >> ~/.bashrc && \
     echo "source /root/ws_rmw_zenoh/install/setup.bash" >> ~/.bashrc && \
+    echo "alias rosdepinstall='rosdep install --from-paths src --ignore-src --rosdistro humble -y'" >> /root/.bashrc && \
     echo "export RCUTILS_COLORIZED_OUTPUT=1" >> ~/.bashrc
 
 
