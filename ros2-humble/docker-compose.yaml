@@ -27,6 +27,7 @@ services:
     command: >
       bash -c "
       source /opt/ros/humble/setup.bash &&
+      [ -d /root/${WORKSPACE:-dev_ws}/venv ] || (virtualenv -p python3 /root/${WORKSPACE:-dev_ws}/venv && touch /root/${WORKSPACE:-dev_ws}/venv/COLCON_IGNORE) &&
       if [ -f /root/${WORKSPACE:-dev_ws}/install/local_setup.bash ]; then
         source /root/${WORKSPACE:-dev_ws}/install/local_setup.bash
       fi &&
