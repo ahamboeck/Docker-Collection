@@ -36,22 +36,15 @@ ENV PATH=/opt/py311/bin:$PATH
 ARG ISAACSIM_VERSION=5.0.0
 RUN python -m pip install --no-cache-dir -U pip setuptools wheel && \
     python -m pip install --no-cache-dir "isaacsim[all,extscache]==${ISAACSIM_VERSION}" \
-        --extra-index-url https://pypi.nvidia.com
 
-# --- Ensure a modern cert bundle inside the venv and expose it via env vars ---
-RUN python -m pip install --no-cache-dir -U certifi && \
-    python - <<'PY'
-import certifi, os, sys
-pem = certifi.where()
-print("certifi bundle:", pem, file=sys.stderr)
-# Write a helper file with the path for wrappers to source if needed
-open("/etc/ssl/certifi_pem", "w").write(pem)
-PY
-
-# Use certifi’s bundle by default (works reliably with Isaac/Kit embedded Python)
-ENV SSL_CERT_DIR=/etc/ssl/certs
-ENV SSL_CERT_FILE=/opt/py311/lib/python3.11/site-packages/certifi/cacert.pem
-ENV REQUESTS_CA_BUNDLE=/opt/py311/lib/python3.11/site-packages/certifi/cacert.pem
+# --- Ensure a modern cert bundle (keep certifi for fallback/testing) ---
+RUN python -m pip install --no-cache-dir -U certifi
+#
+# Prefer the system CA bundle so corporate/private CAs installed via
+# `update-ca-certificates` are honored automatically.
+ENV SSL_CERT_DIR=/etc/ssl/certs \
+    SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+    REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 # --- ROS 2 Jazzy via apt (system Python 3.12) ---
 # We will NOT source this when launching Isaac; it's only for CLI tools and external nodes.
@@ -60,8 +53,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends software-proper
     curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | tee /usr/share/keyrings/ros-archive-keyring.gpg >/dev/null && \
     sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu noble main" > /etc/apt/sources.list.d/ros2.list' && \
     apt-get update && apt-get install -y --no-install-recommends \
-      ros-jazzy-desktop \
-      ros-jazzy-vision-msgs ros-jazzy-ackermann-msgs \
       ros-dev-tools python3-colcon-common-extensions && \
     rm -rf /var/lib/apt/lists/*
 
@@ -105,25 +96,22 @@ RUN echo '#!/usr/bin/env bash'                                   >  /home/isaac/
     echo 'set -euo pipefail'                                     >> /home/isaac/isaac-gui && \
     echo 'export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp'          >> /home/isaac/isaac-gui && \
     echo 'export CYCLONEDDS_URI=file:///etc/cyclonedds.xml'      >> /home/isaac/isaac-gui && \
-    echo 'CERTIFI_PEM=${SSL_CERT_FILE}'                          >> /home/isaac/isaac-gui && \
-    echo '[ -f /etc/ssl/certifi_pem ] && CERTIFI_PEM=$(cat /etc/ssl/certifi_pem)' >> /home/isaac/isaac-gui && \
+    echo '# Use system CA bundle (works with corp roots); override at runtime if needed' >> /home/isaac/isaac-gui && \
     echo 'export SSL_CERT_DIR=/etc/ssl/certs'                    >> /home/isaac/isaac-gui && \
-    echo 'export SSL_CERT_FILE="${CERTIFI_PEM}"'                 >> /home/isaac/isaac-gui && \
-    echo 'export REQUESTS_CA_BUNDLE="${CERTIFI_PEM}"'            >> /home/isaac/isaac-gui && \
+    echo 'export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt' >> /home/isaac/isaac-gui && \
+    echo 'export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt' >> /home/isaac/isaac-gui && \
     echo 'export LD_LIBRARY_PATH="'"$ISAACSIM_BRIDGE_LIB"':${LD_LIBRARY_PATH:-}"' >> /home/isaac/isaac-gui && \
-    echo 'exec isaacsim isaacsim.exp.full "$@"'                  >> /home/isaac/isaac-gui && \
+    echo 'exec isaacsim --/exts/omni.kit.widget.cache_indicator/enabled=false isaacsim.exp.full "$@"' >> /home/isaac/isaac-gui && \
     \
     echo '#!/usr/bin/env bash'                                   >  /home/isaac/isaac-headless && \
     echo 'set -euo pipefail'                                     >> /home/isaac/isaac-headless && \
     echo 'export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp'          >> /home/isaac/isaac-headless && \
     echo 'export CYCLONEDDS_URI=file:///etc/cyclonedds.xml'      >> /home/isaac/isaac-headless && \
-    echo 'CERTIFI_PEM=${SSL_CERT_FILE}'                          >> /home/isaac/isaac-headless && \
-    echo '[ -f /etc/ssl/certifi_pem ] && CERTIFI_PEM=$(cat /etc/ssl/certifi_pem)' >> /home/isaac/isaac-headless && \
     echo 'export SSL_CERT_DIR=/etc/ssl/certs'                    >> /home/isaac/isaac-headless && \
-    echo 'export SSL_CERT_FILE="${CERTIFI_PEM}"'                 >> /home/isaac/isaac-headless && \
-    echo 'export REQUESTS_CA_BUNDLE="${CERTIFI_PEM}"'            >> /home/isaac/isaac-headless && \
+    echo 'export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt' >> /home/isaac/isaac-headless && \
+    echo 'export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt' >> /home/isaac/isaac-headless && \
     echo 'export LD_LIBRARY_PATH="'"$ISAACSIM_BRIDGE_LIB"':${LD_LIBRARY_PATH:-}"' >> /home/isaac/isaac-headless && \
-    echo 'exec isaacsim isaacsim.exp.full.streaming --no-window "$@"' >> /home/isaac/isaac-headless && \
+    echo 'exec isaacsim --/exts/omni.kit.widget.cache_indicator/enabled=false isaacsim.exp.full.streaming --no-window "$@"' >> /home/isaac/isaac-headless && \
     chmod +x /home/isaac/isaac-gui /home/isaac/isaac-headless
 
 # Default: show Isaac Sim CLI help

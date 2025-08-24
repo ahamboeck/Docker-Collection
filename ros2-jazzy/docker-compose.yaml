@@ -47,6 +47,7 @@ services:
 
     devices:
       - /dev/bus/usb:/dev/bus/usb
+      - /dev/input/js1:/dev/input/js1   # joystick 1 (optional)
 
     # No venv here; just idle so you can exec into it
     command: >

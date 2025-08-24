@@ -13,10 +13,9 @@ docker run --name isaac_sim_ros2 \
     -e DISPLAY \
     -e NVIDIA_DRIVER_CAPABILITIES=all \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-    -v /dev/input/js0:/dev/input/js0 \
-    -v /dev/input/js1:/dev/input/js1 \
     -v $HOME/.Xauthority:/root/.Xauthority \
     -v ~/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw \
+    -v ~/docker/isaac-sim/assets:/isaac-sim/assets:rw \
     -v ~/docker/isaac-sim/cache/ov:/root/.cache/ov:rw \
     -v ~/docker/isaac-sim/cache/pip:/root/.cache/pip:rw \
     -v ~/docker/isaac-sim/cache/glcache:/root/.cache/nvidia/GLCache:rw \

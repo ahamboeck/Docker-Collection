@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential cmake git nano bash-completion \
       mesa-utils libgl1-mesa-dri libglu1-mesa-dev xorg-dev \
       tcpdump iputils-ping iputils-tracepath traceroute netcat-openbsd net-tools gdb valgrind clang-format \
+      vim \
     && rm -rf /var/lib/apt/lists/*
 
 # ROS 2 apt repo
