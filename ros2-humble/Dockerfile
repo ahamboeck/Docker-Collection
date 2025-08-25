@@ -74,7 +74,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     valgrind \
     clang-format \
     python3-autopep8 \
-    xorg-dev
+    xorg-dev \
+    trash-cli \
+    vim
 
 # Initialize rosdep
 RUN rosdep init && rosdep update

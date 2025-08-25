@@ -53,7 +53,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends software-proper
     curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | tee /usr/share/keyrings/ros-archive-keyring.gpg >/dev/null && \
     sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu noble main" > /etc/apt/sources.list.d/ros2.list' && \
     apt-get update && apt-get install -y --no-install-recommends \
-      ros-dev-tools python3-colcon-common-extensions && \
+      ros-dev-tools python3-colcon-common-extensions trash-cli vim && \
     rm -rf /var/lib/apt/lists/*
 
 ENV ROS_DISTRO=jazzy ROS_VERSION=2 ROS_PYTHON_VERSION=3
