@@ -15,9 +15,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 libegl1 libvulkan1 vulkan-tools \
     libx11-6 libxext6 libxrender1 libxrandr2 \
     libxi6 libxfixes3 libxcursor1 libxkbcommon0 libxcomposite1 libxdamage1 libxinerama1 \
+    libxt6 libxmu6 libglu1-mesa \
     libnss3 libdrm2 libgbm1 libxshmfence1 libasound2t64 xdg-user-dirs \
     fonts-dejavu-core fonts-noto-core vim nano less \
  && rm -rf /var/lib/apt/lists/*
+
+# (Optional) Quick sanity check for the exact sonames
+RUN ldconfig -p | grep -E 'libXt\.so\.6|libGLU\.so\.1' || true
 
 RUN locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8
 
@@ -35,7 +39,7 @@ ENV PATH=/opt/py311/bin:$PATH
 # --- Isaac Sim 5.0.0 (pip) ---
 ARG ISAACSIM_VERSION=5.0.0
 RUN python -m pip install --no-cache-dir -U pip setuptools wheel && \
-    python -m pip install --no-cache-dir "isaacsim[all,extscache]==${ISAACSIM_VERSION}" \
+    python -m pip install --no-cache-dir "isaacsim[all,extscache]==${ISAACSIM_VERSION}"
 
 # --- Ensure a modern cert bundle (keep certifi for fallback/testing) ---
 RUN python -m pip install --no-cache-dir -U certifi
