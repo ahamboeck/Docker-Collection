@@ -1,11 +1,17 @@
-<CycloneDDS>
-  <Domain>
+<?xml version="1.0" encoding="utf-8"?>
+<CycloneDDS xmlns="https://cdds.io/config">
+  <Domain Id="any">
     <General>
       <Interfaces>
-        <!-- Bind to docker0 only -->
-        <NetworkInterface name="docker0"/>
+        <NetworkInterface name="enp128s31f6"/>
       </Interfaces>
       <AllowMulticast>true</AllowMulticast>
     </General>
+    <Discovery>
+      <ParticipantIndex>auto</ParticipantIndex>
+      <Peers>
+        <Peer address="172.16.0.100"/>
+      </Peers>
+    </Discovery>
   </Domain>
 </CycloneDDS>
