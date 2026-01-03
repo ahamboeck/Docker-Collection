@@ -3,6 +3,7 @@
 xhost +
 
 docker run --name isaac_sim_ros2 \
+    --init \
     --entrypoint bash \
     -it --gpus all \
     --rm \

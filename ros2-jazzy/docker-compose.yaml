@@ -1,39 +1,38 @@
-version: "3.9"
-
 services:
   ros2:
     container_name: ros2-jazzy-dev
+    init: true
+    stdin_open: true
+    tty: true
     build:
       context: .
       args:
         WORKSPACE: ${WORKSPACE:-dev_ws}
     image: ${IMAGE_NAME:-ros2-jazzy-dev}:${IMAGE_TAG:-latest}
 
-    # GPU the modern way (replaces legacy runtime: nvidia)
     deploy:
       resources:
         reservations:
           devices:
-            - capabilities: ["gpu"]
+            - driver: nvidia
+              capabilities: [gpu, graphics, compute, utility, display]
 
     network_mode: host
-    privileged: true  # you can try removing later; useful for USB, perf, etc.
+    ipc: host
+    privileged: true
 
     environment:
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
       - TERM=xterm-256color
-      # NVIDIA envs still help some setups
       - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
-      # ROS defaults (adjust as you like)
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,display
       - ROS_DISTRO=jazzy
       - RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
-      # If you use Cyclone DDS / Zenoh configs inside the image:
       - CYCLONEDDS_URI=file:///root/cyclonedds.xml
-      # - ZENOH_ROUTER_CONFIG_URI=/root/MY_ZENOH_ROUTER_CONFIG.json5
-      # - ZENOH_SESSION_CONFIG=/root/MY_ZENOH_SESSION_CONFIG.json5
+      - WGPU_BACKEND=gl
+      - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libssl.so.3
 
     volumes:
       - ${HOME}/${WORKSPACE:-dev_ws}:/root/${WORKSPACE:-dev_ws}:rw
@@ -42,19 +41,15 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${HOME}/.Xauthority:/root/.Xauthority:ro
       - ./utilities:/utilities:rw
-      # If you want USB devices without privileged:
-      # - /dev/bus/usb:/dev/bus/usb
 
     devices:
       - /dev/bus/usb:/dev/bus/usb
-      - /dev/input/js1:/dev/input/js1   # joystick 1 (optional)
+      - /dev/input/js1:/dev/input/js1
 
-    # No venv here; just idle so you can exec into it
     command: >
       bash -lc "
         source /opt/ros/jazzy/setup.bash &&
         if [ -f /root/${WORKSPACE:-dev_ws}/install/setup.bash ]; then
           source /root/${WORKSPACE:-dev_ws}/install/setup.bash;
         fi &&
-        tail -f /dev/null
-      "
+        tail -f /dev/null"

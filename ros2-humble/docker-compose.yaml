@@ -1,6 +1,9 @@
 services:
   ros2:
     container_name: ros2-humble-dev
+    init: true
+    stdin_open: true
+    tty: true
     build:
       context: .
       args:
@@ -31,5 +34,4 @@ services:
       if [ -f /root/${WORKSPACE:-dev_ws}/install/local_setup.bash ]; then
         source /root/${WORKSPACE:-dev_ws}/install/local_setup.bash
       fi &&
-      tail -f /dev/null
-      "
+      tail -f /dev/null"

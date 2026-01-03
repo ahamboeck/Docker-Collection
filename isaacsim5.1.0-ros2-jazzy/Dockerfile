@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     ACCEPT_EULA=Y \
     PRIVACY_CONSENT=Y \
     NVIDIA_VISIBLE_DEVICES=all \
-    NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute \
+    NVIDIA_DRIVER_CAPABILITIES=all \
     LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
     TZ=Etc/UTC
@@ -22,10 +22,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libx11-6 libxext6 libxrender1 libxrandr2 \
     libxi6 libxfixes3 libxcursor1 libxkbcommon0 libxcomposite1 libxdamage1 libxinerama1 \
     libxt6 libxmu6 libglu1-mesa \
-    libnss3 libdrm2 libgbm1 libxshmfence1 libasound2t64 xdg-user-dirs \
+    libnss3 libdrm2 libgbm1 libxshmfence1 libasound2t64 xdg-user-dirs zenity \
  && rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8
+
+# Grant the ubuntu user passwordless sudo
+RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Python 3.11 venv (Ubuntu 24.04 default is 3.12)
 RUN add-apt-repository -y ppa:deadsnakes/ppa && \
@@ -40,6 +43,8 @@ ENV PATH=/opt/py311/bin:$PATH
 RUN python -m pip install --no-cache-dir -U pip setuptools wheel && \
     python -m pip install --no-cache-dir "isaacsim[all,extscache]==${ISAACSIM_VERSION}" && \
     python -m pip install --no-cache-dir -U certifi
+
+ENV VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
 
 # Prefer system CA bundle (for Kit/Carb/Requests)
 ENV SSL_CERT_DIR=/etc/ssl/certs \
@@ -69,18 +74,17 @@ ENV ISAACSIM_BRIDGE_LIB=/opt/py311/lib/python3.11/site-packages/isaacsim/exts/is
 ENV LD_LIBRARY_PATH="${ISAACSIM_BRIDGE_LIB}:${LD_LIBRARY_PATH}"
 
 # Create directories used by your bind mounts and make them writable by UID/GID 1000
-RUN mkdir -p /home/isaac /home/isaac/Documents && \
-    touch /home/isaac/.Xauthority && \
+RUN mkdir -p /home/ubuntu /home/ubuntu/Documents && \
+    touch /home/ubuntu/.Xauthority && \
     mkdir -p /isaac-sim/.cache /isaac-sim/.nv/ComputeCache \
              /isaac-sim/.nvidia-omniverse/logs /isaac-sim/.nvidia-omniverse/config \
              /isaac-sim/.local/share/ov/data /isaac-sim/.local/share/ov/pkg && \
-    chown -R 1000:1000 /home/isaac /isaac-sim
-
-ENV HOME=/home/isaac \
-    XAUTHORITY=/home/isaac/.Xauthority
+    chown -R 1000:1000 /home/ubuntu /isaac-sim
+ENV HOME=/home/ubuntu \
+    XAUTHORITY=/home/ubuntu/.Xauthority
 
 # Run as "host-like" user (UID/GID 1000)
 USER 1000:1000
-WORKDIR /home/isaac
+WORKDIR /home/ubuntu
 
 CMD ["bash", "-lc", "isaacsim --help"]
