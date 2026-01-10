@@ -1,0 +1,14 @@
+services:
+  boofcv:
+    build: .
+    container_name: boofcv_gui
+    environment:
+      - DISPLAY=${DISPLAY}
+      - JAVA_OPTS=-Xmx8g  # Ensuring enough memory for 61MP images
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./dataset:/app/dataset
+    privileged: true
+    network_mode: host
+    # Changed from CameraCalibration to CameraCalibrationMono
+    command: ["CameraCalibrationMono", "--GUI"]

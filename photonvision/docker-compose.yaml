@@ -1,0 +1,21 @@
+services:
+  photonvision:
+    build: .
+    container_name: photonvision
+    restart: unless-stopped
+    
+    # Using standard port mapping since you only need the Web GUI for offline work.
+    # This makes it work consistently across Windows, Mac, and Linux.
+    ports:
+      - "5800:5800"
+
+    volumes:
+      # Settings, calibration, and pipeline persistence
+      - photon_config:/app/photonvision_config
+      
+      # Mount your local 'dataset' folder into the container
+      # This allows you to load offline images from within the PhotonVision UI
+      - ./dataset:/app/dataset
+
+volumes:
+  photon_config:
