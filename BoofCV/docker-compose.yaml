@@ -11,4 +11,4 @@ services:
     privileged: true
     network_mode: host
     # Changed from CameraCalibration to CameraCalibrationMono
-    command: ["CameraCalibrationMono", "--GUI"]
+    command: ["CameraCalibrationMono", "--GUI"]i

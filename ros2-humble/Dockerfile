@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 ARG WORKSPACE=dev_ws
 # Add build argument for RMW implementation (default: rmw_cyclonedds_cpp)
-ARG RMW_IMPLEMENTATION=rmw_zenoh_cpp
+ARG RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 WORKDIR /root/$WORKSPACE
 
@@ -95,6 +95,7 @@ COPY cyclonedds.xml /root/cyclonedds.xml
 # Copy Zenoh config files (must be present in build context)
 COPY MY_ZENOH_ROUTER_CONFIG.json5 /root/MY_ZENOH_ROUTER_CONFIG.json5
 COPY MY_ZENOH_SESSION_CONFIG.json5 /root/MY_ZENOH_SESSION_CONFIG.json5
+COPY kinect_setup.sh /root/kinect_setup.sh
 
 # --- Build rmw_zenoh from source ---
 # Create workspace and clone rmw_zenoh
@@ -122,7 +123,7 @@ RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
     echo 'eval "$(register-python-argcomplete3 ros2)"' >> /root/.bashrc && \
     echo 'eval "$(register-python-argcomplete3 colcon)"' >> /root/.bashrc && \
     echo 'export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}' >> /root/.bashrc && \
-    echo 'export RCUTILS_COLORIZED_OUTPUT=1' >> /root/.bashrc && \
+    echo 'export RCUTILS_COLORIZED_OUTPUT=1' >> /root/.bashrc
 
 WORKDIR /root/${WORKSPACE}/ros2_ws
 
