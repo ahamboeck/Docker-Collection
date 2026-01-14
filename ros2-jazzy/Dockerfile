@@ -74,6 +74,8 @@ RUN pip install --break-system-packages --ignore-installed \
     git+https://github.com/apple/ml-mobileclip.git \
     git+https://github.com/ultralytics/CLIP.git \
     langchain \
+    uvicorn \
+    fastapi \
     langchain-ollama
 
 RUN rosdep init || true && rosdep update || true
